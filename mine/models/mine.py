@@ -123,7 +123,7 @@ class Mine(nn.Module):
                 #print(f"It {iter} - MI: {mu_mi / batch_size}")
 
         final_mi = self.mi(X, Y)
-        print(f"Final MI: {final_mi}")
+        print(f"\nFinal MI: {final_mi}")
         return final_mi
 
 
