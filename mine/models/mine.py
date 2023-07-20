@@ -118,7 +118,7 @@ class Mine(nn.Module):
                 opt.step()
 
                 mu_mi -= loss.item()
-            pbar.set_postfix(loss=loss)
+            pbar.set_postfix(loss=loss.item())
             if iter % (iters // 3) == 0:
                 pass
                 #print(f"It {iter} - MI: {mu_mi / batch_size}")
