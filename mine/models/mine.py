@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.distributions import MultivariateNormal
 from torch.autograd import Variable
-
+from tqdm import tqdm
 from torchvision import datasets
 from torchvision.transforms import transforms
 
@@ -108,8 +108,8 @@ class Mine(nn.Module):
 
         if opt is None:
             opt = torch.optim.Adam(self.parameters(), lr=1e-4)
-
-        for iter in range(1, iters + 1):
+        pbar = tqdm(range(1, iters + 1))
+        for iter in pbar:
             mu_mi = 0
             for x, y in utils.batch(X, Y, batch_size):
                 opt.zero_grad()
