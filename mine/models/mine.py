@@ -184,22 +184,13 @@ class MutualInformationEstimator(pl.LightningModule):
             **tensorboard_logs, 'log': tensorboard_logs, 'progress_bar': tqdm_dict
         }
 
-    def validation_step(self, batch, batch_idx):
+    def test_step(self, batch, batch_idx):
         x, z = batch
         loss = self.energy_loss(x, z)
 
         return {
             'test_loss': loss, 'test_mi': -loss
         }
-
-    def on_validation_epoch_end(self):
-        outputs = self.validation_step_outputs
-        avg_mi = torch.stack([x['test_mi']
-                              for x in outputs]).mean().detach().cpu().numpy()
-        tensorboard_logs = {'test_mi': avg_mi}
-
-        self.avg_test_mi = avg_mi
-        return {'avg_test_mi': avg_mi, 'log': tensorboard_logs}
 
     def train_dataloader(self):
         if self.train_loader:
