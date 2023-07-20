@@ -184,7 +184,7 @@ class MutualInformationEstimator(pl.LightningModule):
             **tensorboard_logs, 'log': tensorboard_logs, 'progress_bar': tqdm_dict
         }
 
-    def test_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx):
         x, z = batch
         loss = self.energy_loss(x, z)
 
@@ -192,7 +192,8 @@ class MutualInformationEstimator(pl.LightningModule):
             'test_loss': loss, 'test_mi': -loss
         }
 
-    def test_end(self, outputs):
+    def on_validation_epoch_end(self):
+        outputs = self.validation_step_outputs
         avg_mi = torch.stack([x['test_mi']
                               for x in outputs]).mean().detach().cpu().numpy()
         tensorboard_logs = {'test_mi': avg_mi}
@@ -304,7 +305,7 @@ def rho_experiment():
 
         model = MutualInformationEstimator(
             dim, dim, loss='mine_biased', **kwargs).to(device)
-        trainer = Trainer(max_epochs=epochs, early_stop_callback=False, gpus=1)
+        trainer = Trainer(max_epochs=epochs)
         trainer.fit(model)
         trainer.test()
 
