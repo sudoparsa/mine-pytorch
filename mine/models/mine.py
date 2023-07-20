@@ -156,6 +156,7 @@ class MutualInformationEstimator(pl.LightningModule):
 
         self.train_loader = kwargs.get('train_loader')
         self.test_loader = kwargs.get('test_loader')
+        self.test_step_outputs = []
 
     def forward(self, x, z):
         if self.on_gpu:
@@ -187,10 +188,19 @@ class MutualInformationEstimator(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         x, z = batch
         loss = self.energy_loss(x, z)
-
-        return {
+        o = {
             'test_loss': loss, 'test_mi': -loss
         }
+        self.test_step_outputs.append(o)
+        return o
+
+    def on_test_end(self):
+        avg_mi = torch.stack([x['test_mi']
+                              for x in self.test_step_outputs]).mean().detach().cpu().numpy()
+        tensorboard_logs = {'test_mi': avg_mi}
+
+        self.avg_test_mi = avg_mi
+        return {'avg_test_mi': avg_mi, 'log': tensorboard_logs}
 
     def train_dataloader(self):
         if self.train_loader:
